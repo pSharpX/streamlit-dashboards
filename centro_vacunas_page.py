@@ -20,7 +20,7 @@ def group_centros_by_departamento(df):
     return df.groupby("departamento", sort="count").size().reset_index(name="count")
 
 def group_centros_by_provincia(df):
-    return df.groupby(["departamento", "provincia"], sort="count").size().reset_index(name="count")
+    return df.groupby(["departamento", "provincia", "distrito"], sort="count").size().reset_index(name="count")
 
 def group_centros_by_distrito(df):
     return df.groupby("distrito", sort="count").size().reset_index(name="count")
@@ -30,6 +30,9 @@ def filter_centros_by_departamento(df, departamento="LIMA"):
 
 def filter_centros_by_provincia(df, provincia="LIMA"):
     return df[df["provincia"] == provincia]
+
+def filter_centros_by_distrito(df, distrito="ALL"):
+    return df[df["distrito"] == distrito]
 
 def filter_centros_without_entidades(df):
     return df[df["entidad_administra"] != "Sin Entidad"]
@@ -51,6 +54,8 @@ df_main = merge_centro_vacunas_and_ubigeos(df_centros, df_ubigeos)
 
 list_entidades_admin = df_centros['entidad_administra'].dropna().unique()
 list_departamentos = df_ubigeos['departamento'].dropna().unique()
+list_provincias = df_ubigeos[['departamento', 'provincia']].dropna()
+list_distritos = df_ubigeos[['departamento', 'provincia', 'distrito']].dropna()
 
 option_entidad = st.selectbox('Seleccionar una entidad:', list_entidades_admin)
 df_centros_table = df_main[df_main['entidad_administra'] == option_entidad]
@@ -66,7 +71,16 @@ st.markdown("### Centros de vacunacion por Entidades (> 50 centros)")
 st.bar_chart(df_gb_entidades, x="entidad_administra", y="count", x_label="Entidades", y_label="Cantidad")
 
 st.markdown("### Centros de vacunacion por Departamento:")
-option_departamento = st.selectbox('Seleccionar un departamento:', list_departamentos)
-df_plot_2 = filter_centros_by_departamento(df_main, option_departamento)
+
+columns = st.columns([2,2,2])
+
+option_departamento = columns[0].selectbox('Seleccionar un departamento:', list_departamentos)
+option_provincia = columns[1].selectbox('Seleccionar un departamento:', list_provincias[list_provincias["departamento"] == option_departamento]["provincia"].unique())
+option_distrito = columns[2].selectbox('Seleccionar un distrito:', list_distritos[(list_distritos["departamento"] == option_departamento) & (list_distritos["provincia"] == option_provincia)]["distrito"].unique())
+
+#option_departamento = st.selectbox('Seleccionar un departamento:', list_departamentos)
+#option_provincia = st.selectbox('Seleccionar un departamento:', list_provincias[list_provincias["departamento"] == option_departamento]["provincia"].unique())
+df_plot_2 = filter_centros_by_distrito(filter_centros_by_provincia(filter_centros_by_departamento(df_main, option_departamento), option_provincia), option_distrito)
 st.write(group_centros_by_provincia(df_plot_2))
-st.map(df_plot_2, latitude="latitud_ds2", longitude="longitud_ds2")
+st.map(df_plot_2, latitude="latitud_ds1", longitude="longitud_ds1")
+st.write(df_plot_2)
