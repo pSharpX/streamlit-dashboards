@@ -37,7 +37,7 @@ def filter_centros_by_distrito(df, distrito="ALL"):
 def filter_centros_without_entidades(df):
     return df[df["entidad_administra"] != "Sin Entidad"]
 
-st.title("DataSet - Centros de Vacunacion")
+st.title("Centros de Vacunacion")
 st.sidebar.markdown("# Page 3 🎉")
 st.divider()
 

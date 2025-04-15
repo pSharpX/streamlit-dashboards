@@ -4,7 +4,7 @@ import numpy as np
 import helpers as utils
 
 st.title("Centros de Vacunacion")
-st.sidebar.markdown("# Page 1 🎉")
+st.sidebar.markdown("# Overview 🎉")
 st.divider()
 
 st.markdown(
