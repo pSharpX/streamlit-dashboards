@@ -27,23 +27,32 @@ def get_profundidad_category(profundidad):
         return "Intermedios"
     return "Profundos"
 
-def get_size(magnitud):
-    return magnitud*100
+def get_size(magnitud_class):
+    return {
+        "Micro": 0.2*100*10,
+        "Menor": 0.4*100*10,
+        "Ligero": 0.8*100*10,
+        "Moderado": 1*100*10,
+        "Fuerte": 10*100*10,
+        "Mayor": 15*100*10,
+        "Épico o Catastrófico": 30*100*10,
+        "Legendario o apocalíptico": 30*100*10
+    }.get(magnitud_class)
 
 def get_color(magnitud_class):
     match magnitud_class:
         case "Micro":
-            color = "#008f39"
+            color = "#008f3950"
         case "Menor":
-            color = "#ffff00"
+            color = "#ffff0050"
         case "Ligero":
-            color = "#ff6600"
+            color = "#ff660060"
         case "Moderado":
-            color = "#ff4500"
+            color = "#ff450060"
         case "Fuerte":
-            color = "#ff4000"
+            color = "#ff400080"
         case "Mayor":
-            color = "#b83d14"
+            color = "#b83d1480"
         case "Épico o Catastrófico":
             color = "#572364"
         case _:
@@ -66,9 +75,9 @@ df["YEAR"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.year
 df["MONTH"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.month
 df["YEAR_MONTH"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.strftime('%Y-%m')
 df["MONTH_NAME"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.month_name()
-df["SIZE"] = df["MAGNITUD"].transform(get_size)
 df["MAGNITUD_CLASS"] = df["MAGNITUD"].transform(get_magnitud_category)
 df["PROFUNDIDAD_CLASS"] = df["PROFUNDIDAD"].transform(get_profundidad_category)
+df["SIZE"] = df["MAGNITUD_CLASS"].transform(get_size)
 df["COLOR"] = df["MAGNITUD_CLASS"].transform(get_color)
 df["COLOR_PREVIEW"] = df["COLOR"].transform(get_color_preview)
 
@@ -85,10 +94,9 @@ column_config = {
     "MONTH": None,
     "YEAR_MONTH": "Fecha",
     "MONTH_NAME": None,
-    "SIZE": None,
     "MAGNITUD_CLASS": "Clase",
     "PROFUNDIDAD_CLASS": None,
-    "SIZE": "Size",
+    "SIZE": None,
     "COLOR": None,
     "COLOR_PREVIEW": st.column_config.ImageColumn("Color")
 }
