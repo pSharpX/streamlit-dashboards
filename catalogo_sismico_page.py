@@ -8,8 +8,6 @@ def get_magnitud_category(magnitud):
         return "Micro"
     elif magnitud <= 3.9:
         return "Menor"
-    elif magnitud <= 3:
-        return "Micro"
     elif magnitud <= 4.9:
         return "Ligero"
     elif magnitud <= 5.9:
@@ -27,7 +25,34 @@ def get_profundidad_category(profundidad):
         return "Superficiales"
     elif profundidad <= 450:
         return "Intermedios"
-    return "Profundos "
+    return "Profundos"
+
+def get_size(magnitud):
+    return magnitud*100
+
+def get_color(magnitud_class):
+    match magnitud_class:
+        case "Micro":
+            color = "#008f39"
+        case "Menor":
+            color = "#ffff00"
+        case "Ligero":
+            color = "#ff6600"
+        case "Moderado":
+            color = "#ff4500"
+        case "Fuerte":
+            color = "#ff4000"
+        case "Mayor":
+            color = "#b83d14"
+        case "Épico o Catastrófico":
+            color = "#572364"
+        case _:
+            color = "#0a0a0a"
+    return color
+
+def get_color_preview(color):
+    return f'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="40" cy="50" r="25" fill="%23{color[1:]}"/></svg>'
+
 
 st.title("Catálogo Sísmico 1960 - 2023")
 st.sidebar.markdown("# Page 4 🎉")
@@ -41,10 +66,11 @@ df["YEAR"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.year
 df["MONTH"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.month
 df["YEAR_MONTH"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.strftime('%Y-%m')
 df["MONTH_NAME"] = pd.to_datetime(df["FECHA_UTC"], format='%Y%m%d').dt.month_name()
-df["SIZE"] = df["MAGNITUD"] * 100
+df["SIZE"] = df["MAGNITUD"].transform(get_size)
 df["MAGNITUD_CLASS"] = df["MAGNITUD"].transform(get_magnitud_category)
 df["PROFUNDIDAD_CLASS"] = df["PROFUNDIDAD"].transform(get_profundidad_category)
-#df["COLOR"] = df["MAGNITUD"] * 100
+df["COLOR"] = df["MAGNITUD_CLASS"].transform(get_color)
+df["COLOR_PREVIEW"] = df["COLOR"].transform(get_color_preview)
 
 column_config = {
     "ID": None,
@@ -58,10 +84,13 @@ column_config = {
     "YEAR": "Año",
     "MONTH": None,
     "YEAR_MONTH": "Fecha",
-    "MONTH_NAME": "Mes",
+    "MONTH_NAME": None,
     "SIZE": None,
-    "MAGNITUD_CLASS": None,
-    "PROFUNDIDAD_CLASS": None
+    "MAGNITUD_CLASS": "Clase",
+    "PROFUNDIDAD_CLASS": None,
+    "SIZE": "Size",
+    "COLOR": None,
+    "COLOR_PREVIEW": st.column_config.ImageColumn("Color")
 }
 st.dataframe(df, hide_index=True, column_config=column_config)
 
@@ -94,7 +123,7 @@ on = st.toggle("Mostrar tabla de resultados")
 if on:
     columns2 = st.columns([2,6])
     columns2[0].dataframe(df2, hide_index=True, column_config={"YEAR": "Año", "COUNT": "Cantidad"})
-    columns2[1].map(df1, latitude="LATITUD", longitude="LONGITUD", size="SIZE")
+    columns2[1].map(df1, latitude="LATITUD", longitude="LONGITUD", size="SIZE", color="COLOR")
 else:
-    st.map(df1, latitude="LATITUD", longitude="LONGITUD", size="SIZE")
+    st.map(df1, latitude="LATITUD", longitude="LONGITUD", size="SIZE", color="COLOR")
 
