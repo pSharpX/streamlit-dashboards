@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import helpers as utils
 
-st.title("Catalogo Sismico 1960 - 2023")
+st.title("Catálogo Sísmico 1960 - 2023")
 st.sidebar.markdown("# Overview 🎉")
 st.divider()
 
