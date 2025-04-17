@@ -5,6 +5,6 @@ import os
 dirname = os.path.dirname(__file__)
 
 @st.cache_data
-def read_dataset(dataset_path, separator=","):
+def read_dataset(dataset_path, separator=",", dtype=None):
     filename = os.path.join(dirname, dataset_path)
-    return pd.read_csv(filename, sep=separator)
+    return pd.read_csv(filename, sep=separator, dtype=dtype)
